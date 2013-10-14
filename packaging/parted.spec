@@ -52,6 +52,8 @@ Parted library, you need to install this package.
 
 %install
 %{__rm} -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/license
+cp COPYING %{buildroot}/usr/share/license/%{name}
 %make_install
 
 # Remove components we do not ship
@@ -79,6 +81,7 @@ Parted library, you need to install this package.
 %{_sbindir}/parted
 %{_sbindir}/partprobe
 %{_libdir}/libparted*.so.*
+/usr/share/license/%{name}
 
 %files devel
 %defattr(-,root,root,-)
