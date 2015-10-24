@@ -1,29 +1,23 @@
-#specfile originally created for Fedora, modified for Moblin Linux
 %define _sbindir /sbin
-#define _libdir /%{_lib}
 
-Summary: The GNU disk partition manipulation program
-Name:    parted
-Version: 3.0
-Release: 1
-License: GPLv3+
-Group:   Applications/System
-URL:     http://www.gnu.org/software/parted
+Name:           parted
+Version:        3.1
+Release:        1
+License:        GPL-3.0+
+Summary:        The GNU disk partition manipulation program
+Url:            http://www.gnu.org/software/parted
+Group:          Applications/System
 
-Source0: ftp://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.gz
+Source0:        ftp://ftp.gnu.org/gnu/%{name}/%{name}-%{version}.tar.gz
+Source1001: 	parted.manifest
 
-BuildRequires: e2fsprogs-devel
-BuildRequires: libuuid-devel
-BuildRequires: readline-devel
-BuildRequires: ncurses-devel
-BuildRequires: libtool
-BuildRequires: gettext-devel
-BuildRequires: texinfo
-
-Requires(post): /sbin/ldconfig
-Requires(post): /sbin/install-info
-Requires(preun): /sbin/install-info
-Requires(postun): /sbin/ldconfig
+BuildRequires:  gettext-devel
+BuildRequires:  libtool
+BuildRequires:  libuuid-devel
+BuildRequires:  ncurses-devel
+BuildRequires:  readline-devel
+BuildRequires:  texinfo
+BuildRequires:  pkgconfig(ext2fs)
 
 %description
 The GNU Parted program allows you to create, destroy, resize, move,
@@ -32,10 +26,10 @@ for new operating systems, reorganizing disk usage, and copying data
 to new hard disks.
 
 %package devel
-Summary:  Files for developing apps which will manipulate disk partitions
-Group:    Development/Libraries
-Requires: %{name} = %{version}-%{release}
-Requires: pkgconfig
+Summary:        Files for developing apps which will manipulate disk partitions
+Group:          Development/Libraries
+Requires:       %{name} = %{version}
+Requires:       pkgconfig
 
 %description devel
 The GNU Parted library is a set of routines for hard disk partition
@@ -44,27 +38,17 @@ partitions and filesystems using the routines provided by the GNU
 Parted library, you need to install this package.
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
+cp %{SOURCE1001} .
 
 %build
 %configure --disable-static --disable-device-mapper --with-readline --with-libdir=%{_libdir} --exec-prefix=/usr
-%{__make} %{?_smp_mflags}
+make %{?_smp_mflags}
 
 %install
-%{__rm} -rf %{buildroot}
-mkdir -p %{buildroot}/usr/share/license
-cp COPYING %{buildroot}/usr/share/license/%{name}
 %make_install
 
-# Remove components we do not ship
-%{__rm} -rf %{buildroot}%{_infodir}/dir
-#%{__rm} -rf %{buildroot}%{_bindir}/label
-#%{__rm} -rf %{buildroot}%{_bindir}/disk
-
 %find_lang %{name}
-
-%clean
-%{__rm} -rf %{buildroot}
 
 %post -p /sbin/ldconfig
 
@@ -75,17 +59,19 @@ cp COPYING %{buildroot}/usr/share/license/%{name}
 
 %docs_package
 
-%files 
+%files
+%manifest %{name}.manifest
 %defattr(-,root,root,-)
-%doc COPYING
+%license COPYING
 %{_sbindir}/parted
 %{_sbindir}/partprobe
 %{_libdir}/libparted*.so.*
-/usr/share/license/%{name}
 
 %files devel
+%manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_includedir}/parted
 %{_libdir}/libparted.so
+%{_libdir}/libparted-fs-resize.so
 %{_libdir}/pkgconfig/libparted.pc
 
